@@ -184,6 +184,152 @@
 
 @end
 
+@interface PrivateNode<__covariant T> : NSObject
+@property (nonatomic, strong) E element;
+@property (nonatomic, strong) PrivateNode<T> *prev;
+@property (nonatomic, strong) PrivateNode<T> *next;
+
+- (instancetype)initWithPrev:(PrivateNode<T> *)prev element:(E)element next:(PrivateNode<T> *)next;
+@end
+
+@implementation PrivateNode
+
+- (instancetype)initWithPrev:(PrivateNode *)prev element:(E)element next:(PrivateNode *)next {
+    if (self = [super init]) {
+        self.prev = prev;
+        self.element = element;
+        self.next = next;
+    }
+    return self;
+}
+
+@end
+
+@interface CircleLinkedList<T> ()
+@property (nonatomic, strong) PrivateNode<T> *first;
+@property (nonatomic, strong) PrivateNode<T> *last;
+@property (nonatomic, strong) PrivateNode<T> *current;
+@end
+
+@implementation CircleLinkedList
+
+- (void)clear {
+    self.size = 0;
+    self.first = nil;
+    self.last = nil;
+}
+
+- (void)reset {
+    self.current = self.first;
+}
+
+- (E)next {
+    if (self.current == nil) return nil;
+    
+    self.current = self.current.next;
+    return self.current.element;
+}
+
+- (E)remove {
+    if (self.current == nil) return nil;
+    
+    PrivateNode *next = self.current.next;
+    E element = [self removeNode:self.current];
+    if (self.size == 0) {
+        self.current = nil;
+    }else {
+        self.current = next;
+    }
+    return element;
+}
+
+- (E)get:(NSInteger)index {
+    return [self node:index].element;
+}
+
+- (E)set:(NSInteger)index element:(E)element {
+    PrivateNode *node = [self node:index];
+    E old = node.element;
+    node.element = element;
+    return old;
+}
+
+- (void)add:(E)element index:(NSInteger)index {
+    [self rangeCheckForAdd:index];
+    
+    if (self.size == index) {
+        PrivateNode *oldLast = self.last;
+        self.last = [[PrivateNode alloc] initWithPrev:oldLast element:element next:self.first];
+        if (oldLast == nil) {
+            self.first = self.last;
+            self.first.next = self.first;
+            self.first.prev = self.first;
+        }else {
+            oldLast.next = self.last;
+            self.first.prev = self.last;
+        }
+    }else {
+        PrivateNode *next = [self node:index];
+        PrivateNode *prev = next.prev;
+        PrivateNode *node = [[PrivateNode alloc] initWithPrev:prev element:element next:next];
+        next.prev = node;
+        prev.next = node;
+        
+        if (next == self.first) {
+            self.first = node;
+        }
+    }
+    self.size ++;
+}
+
+- (E)remove:(NSInteger)index {
+    [self rangeCheck:index];
+    return [self removeNode:[self node:index]];
+}
+
+- (E)removeNode:(PrivateNode *)node {
+    if (self.size == 1) {
+        self.first = nil;
+        self.last = nil;
+    }else {
+        PrivateNode *prev = node.prev;
+        PrivateNode *next = node.next;
+        prev.next = next;
+        next.prev = prev;
+        
+        if (node == self.first) { // index == 0
+            self.first = next;
+        }
+        
+        if (node == self.last) { // index == size - 1
+            self.last = prev;
+        }
+    }
+    self.size --;
+    return node.element;
+}
+
+- (PrivateNode *)node:(NSInteger)index {
+    [self rangeCheck:index];
+    
+    if (index < self.size << 1) {
+        PrivateNode *node = self.first;
+        for (int i = 0; i < index; i ++) {
+            node = node.next;
+        }
+        return node;
+    }else {
+        PrivateNode *node = self.last;
+        for (int i = (int)(self.size - 1); i > index; i --) {
+            node = self.last.prev;
+        }
+        return node;
+    }
+}
+
+@end
+
+
 @interface LinkedList<__covariant T> ()
 @property (nonatomic, strong) ListNode *last;
 @property (nonatomic, strong) ListNode *first;

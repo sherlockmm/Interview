@@ -354,6 +354,33 @@ void test_linkedList() {
     bool isEmpty = list.isEmpty;
 }
 
+void test_circleLinkedList() {
+    CircleLinkedList<NSNumber *> *list = [[CircleLinkedList alloc] init];
+    for (int i = 1; i <= 8; i ++) {
+        [list add:@(i)];
+    }
+    [list reset];
+    while (!list.isEmpty) {
+        [list next];
+        [list next];
+        NSLog(@"test_circleLinkedList : %@", [list remove]);
+    }
+}
+
+void test_List(id<Listable> list) {
+    
+}
+
+struct Array {
+    int value;
+    int index;
+};
+
+void staticLinkedList() {
+    struct Array a = {1,0};
+    struct Array array[5] = {a,a,a,a,a};
+}
+
 @interface ViewController ()
 
 @end
@@ -363,13 +390,13 @@ void test_linkedList() {
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    
     test_has_cycle();
     test_getIntersectionNode();
     test_getKthFromEnd();
     test_deleteNode();
     test_removeDuplicateNodes();
     test_kthToLast();
+    test_circleLinkedList();
 }
 
 

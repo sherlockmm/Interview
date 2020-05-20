@@ -48,6 +48,14 @@ static NSInteger const ELEMENT_NOT_FOUND = -1;
 - (Node *)node:(NSInteger)index;
 @end
 
+@interface CircleLinkedList<T> : AbstractList<T>
+
+- (void)reset;
+- (E)next;
+- (E)remove;
+
+@end
+
 @interface ListNode : NSObject
 @property (nonatomic, strong, nullable) ListNode *next;
 @property (nonatomic, assign) NSInteger value;
